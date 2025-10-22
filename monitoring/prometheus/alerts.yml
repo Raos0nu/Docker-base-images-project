@@ -1,0 +1,82 @@
+groups:
+  - name: container_alerts
+    interval: 30s
+    rules:
+      - alert: ContainerDown
+        expr: up{job="cadvisor"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container monitoring is down"
+          description: "cAdvisor has been down for more than 1 minute."
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "Container {{ $labels.name }} CPU usage is above 80% (current value: {{ $value }})"
+
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Container {{ $labels.name }} memory usage is above 90% (current value: {{ $value }})"
+
+      - alert: ContainerRestarting
+        expr: rate(container_last_seen[5m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container is restarting frequently"
+          description: "Container {{ $labels.name }} has restarted {{ $value }} times in the last 5 minutes."
+
+  - name: application_alerts
+    interval: 30s
+    rules:
+      - alert: ApplicationDown
+        expr: up{job="demo-node-app"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Application is down"
+          description: "Demo Node.js application has been down for more than 2 minutes."
+
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "Application response time is above 1 second (current value: {{ $value }})"
+
+  - name: node_alerts
+    interval: 30s
+    rules:
+      - alert: HostOutOfDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host out of disk space"
+          description: "Disk is almost full (< 10% left)"
+
+      - alert: HostHighCPULoad
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host high CPU load"
+          description: "CPU load is > 80%"
+
