@@ -16,11 +16,11 @@ LABEL org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.licenses="MIT" \
       maintainer="your-email@example.com"
 
-# Install essential packages with pinned versions and security updates
+# Install essential packages with security updates
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates=20230311 \
-      curl=7.88.1-* \
-      tini=0.19.0-* \
+      ca-certificates \
+      curl \
+      tini \
  && apt-get upgrade -y \
  && rm -rf /var/lib/apt/lists/* \
  && apt-get clean

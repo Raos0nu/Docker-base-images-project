@@ -28,8 +28,8 @@ ENV NODE_ENV=${NODE_ENV} \
 RUN apt-get update \
  && apt-get upgrade -y \
  && apt-get install -y --no-install-recommends \
-      tini=0.19.0-* \
-      dumb-init=1.2.5-* \
+      tini \
+      dumb-init \
  && rm -rf /var/lib/apt/lists/* \
  && apt-get clean
 

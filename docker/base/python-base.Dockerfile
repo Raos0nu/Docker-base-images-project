@@ -30,8 +30,8 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update \
  && apt-get upgrade -y \
  && apt-get install -y --no-install-recommends \
-      tini=0.19.0-* \
-      curl=7.88.1-* \
+      tini \
+      curl \
  && rm -rf /var/lib/apt/lists/* \
  && apt-get clean
 
