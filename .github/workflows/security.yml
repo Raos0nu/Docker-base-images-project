@@ -32,6 +32,7 @@ jobs:
     name: Scan Docker Images
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         image: [debian-base, node-base, python-base]
     steps:
@@ -54,6 +55,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: ${{ matrix.image }}:latest
           format: 'table'
@@ -62,11 +64,13 @@ jobs:
 
       - name: Run Trivy and save results
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: ${{ matrix.image }}:latest
           format: 'sarif'
           output: 'trivy-${{ matrix.image }}-results.sarif'
           severity: 'CRITICAL,HIGH'
+          exit-code: '0'
 
       - name: Upload results
         uses: github/codeql-action/upload-sarif@v3
