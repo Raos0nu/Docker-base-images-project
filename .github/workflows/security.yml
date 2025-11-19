@@ -10,6 +10,10 @@ jobs:
   scan-dependencies:
     name: Scan Dependencies
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,16 +29,17 @@ jobs:
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
-        permissions:
-          security-events: write
-          actions: read
-          contents: read
+        if: always() && hashFiles('trivy-repo-results.sarif') != ''
         with:
           sarif_file: 'trivy-repo-results.sarif'
 
   scan-images:
     name: Scan Docker Images
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -42,6 +47,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build image
         run: |
@@ -78,16 +86,17 @@ jobs:
 
       - name: Upload results
         uses: github/codeql-action/upload-sarif@v4
-        permissions:
-          security-events: write
-          actions: read
-          contents: read
+        if: always() && hashFiles('trivy-${{ matrix.image }}-results.sarif') != ''
         with:
           sarif_file: 'trivy-${{ matrix.image }}-results.sarif'
 
   dockerfile-security:
     name: Dockerfile Security Check
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -102,11 +111,7 @@ jobs:
 
       - name: Upload Checkov results
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        permissions:
-          security-events: write
-          actions: read
-          contents: read
+        if: always() && hashFiles('checkov-results.sarif') != ''
         with:
           sarif_file: checkov-results.sarif
 
