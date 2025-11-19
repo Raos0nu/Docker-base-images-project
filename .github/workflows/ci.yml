@@ -174,8 +174,12 @@ jobs:
           exit-code: '0'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
+        permissions:
+          security-events: write
+          actions: read
+          contents: read
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -221,14 +225,25 @@ jobs:
           curl -f http://localhost:8080/metrics || exit 1
           echo "Metrics endpoint accessible"
 
-      - name: Test main endpoint
+      - name: Test main endpoint (HTML dashboard)
         run: |
           response=$(curl -s http://localhost:8080/)
+          echo "Response preview: ${response:0:200}"
+          if echo "$response" | grep -q "Docker Base Images - Dashboard"; then
+            echo "Main endpoint (HTML dashboard) test passed"
+          else
+            echo "Main endpoint test failed - expected HTML dashboard"
+            exit 1
+          fi
+
+      - name: Test API endpoint (JSON)
+        run: |
+          response=$(curl -s http://localhost:8080/api)
           echo "Response: $response"
           if echo "$response" | grep -q "Hello from Docker base image"; then
-            echo "Main endpoint test passed"
+            echo "API endpoint test passed"
           else
-            echo "Main endpoint test failed"
+            echo "API endpoint test failed"
             exit 1
           fi
 
