@@ -54,6 +54,7 @@ RUN if [ -f package-lock.json ]; then \
 
 # Copy application files
 COPY --chown=appuser:appgroup server.js ./
+COPY --chown=appuser:appgroup public ./public
 
 # Switch to non-root user
 USER appuser

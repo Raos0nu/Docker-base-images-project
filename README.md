@@ -293,19 +293,44 @@ All images support the following build arguments:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Contributions are welcome! This project follows industry best practices for Docker containerization.
 
 ### Development Workflow
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Make your changes following the coding standards below
+4. Test your changes (`make build-all && make test`)
+5. Commit your changes with clear messages (`git commit -m 'feat: add new feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-## 📝 Changelog
+### Coding Standards
 
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
+**Dockerfile Best Practices:**
+- Use specific base image tags (e.g., `debian:bookworm-slim`, not `debian:latest`)
+- Minimize layers by combining RUN commands
+- Order instructions for better caching (dependencies before code)
+- Use `.dockerignore` to exclude unnecessary files
+- Run as non-root user
+- Include health checks
+
+**Commit Message Format:**
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation changes
+- `style:` Formatting changes
+- `refactor:` Code restructuring
+- `test:` Adding tests
+- `chore:` Maintenance tasks
+
+### Security Guidelines
+
+- Never commit secrets or sensitive information
+- Keep dependencies updated
+- Run security scans: `make security-scan`
+- Follow least privilege principle (non-root users)
+- Report security vulnerabilities privately (do not open public issues)
 
 ## 📄 License
 
@@ -324,11 +349,90 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Multi-Stage Builds](https://docs.docker.com/build/building/multi-stage/)
 - [Health Checks](https://docs.docker.com/engine/reference/builder/#healthcheck)
 
+## 📝 Project Overview
+
+This project provides **production-ready, security-hardened Docker base images** optimized for modern application development. All images follow industry best practices including:
+
+- ✅ Multi-stage builds for optimized image sizes
+- ✅ Non-root user execution (UID 10001)
+- ✅ Minimal base images (debian-slim variants)
+- ✅ Health checks and readiness probes
+- ✅ Prometheus metrics endpoints
+- ✅ Graceful shutdown handling
+- ✅ Security headers and best practices
+- ✅ OCI standard labels
+- ✅ Comprehensive monitoring support
+
+### Available Base Images
+
+1. **debian-base** - Minimal Debian-based image with essential tooling
+2. **node-base** - Production-ready Node.js 20 environment
+3. **python-base** - Secure Python 3.12 runtime environment
+
+### Frontend Dashboard
+
+The example Node.js application includes a beautiful web dashboard accessible at `http://localhost:8080` that displays:
+- Real-time health status and uptime
+- System metrics (memory usage, heap statistics)
+- Project information and available base images
+- API endpoint documentation
+- Auto-refreshing data every 5 seconds
+
+## 🚢 Deployment
+
+### Docker
+
+```bash
+docker run -d \
+  --name myapp \
+  -p 8080:8080 \
+  -e NODE_ENV=production \
+  --memory="512m" \
+  --cpus="1.0" \
+  --restart unless-stopped \
+  myapp:1.0.0
+```
+
+### Docker Compose
+
+```yaml
+version: '3.9'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+```
+
+### Kubernetes
+
+See the deployment examples in the repository for complete Kubernetes manifests with:
+- Deployment configurations
+- Service definitions
+- Health and readiness probes
+- Resource limits
+- Security contexts
+
+### Cloud Platforms
+
+The images are compatible with:
+- **AWS ECS/Fargate** - Use the provided task definitions
+- **Google Cloud Run** - Deploy directly with gcloud
+- **Azure Container Instances** - Use Azure Container Registry
+- **Any Kubernetes cluster** - Use the provided manifests
+
 ## 💬 Support
 
 For questions and support:
-- Open an [issue](https://github.com/yourusername/docker-base-images/issues)
-- Check existing [discussions](https://github.com/yourusername/docker-base-images/discussions)
+- Open an [issue](https://github.com/Raos0nu/Docker-base-images-project/issues)
+- Check the [repository](https://github.com/Raos0nu/Docker-base-images-project) for examples
 
 ---
 

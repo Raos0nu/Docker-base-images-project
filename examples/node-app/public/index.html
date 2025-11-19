@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Base Images - Dashboard</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐳 Docker Base Images Project</h1>
+            <p class="subtitle">Production-Ready Docker Base Images Dashboard</p>
+        </header>
+
+        <div class="dashboard">
+            <!-- Welcome Card -->
+            <div class="card welcome-card">
+                <div class="card-header">
+                    <h2>Welcome</h2>
+                    <span class="status-badge status-healthy" id="status-badge">Healthy</span>
+                </div>
+                <div class="card-content">
+                    <p id="welcome-message">Loading...</p>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Version:</span>
+                            <span class="info-value" id="version">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Environment:</span>
+                            <span class="info-value" id="environment">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Updated:</span>
+                            <span class="info-value" id="timestamp">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Status Card -->
+            <div class="card health-card">
+                <div class="card-header">
+                    <h2>Health Status</h2>
+                    <div class="pulse-indicator" id="pulse"></div>
+                </div>
+                <div class="card-content">
+                    <div class="health-status">
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" id="health-status">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Uptime:</span>
+                            <span class="status-value" id="uptime">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Readiness:</span>
+                            <span class="status-value" id="readiness">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Card -->
+            <div class="card metrics-card">
+                <div class="card-header">
+                    <h2>System Metrics</h2>
+                    <button class="refresh-btn" onclick="loadMetrics()">🔄 Refresh</button>
+                </div>
+                <div class="card-content">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Memory (RSS)</div>
+                            <div class="metric-value" id="memory-rss">-</div>
+                            <div class="metric-bar">
+                                <div class="metric-bar-fill" id="memory-rss-bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Heap Total</div>
+                            <div class="metric-value" id="heap-total">-</div>
+                            <div class="metric-bar">
+                                <div class="metric-bar-fill" id="heap-total-bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Heap Used</div>
+                            <div class="metric-value" id="heap-used">-</div>
+                            <div class="metric-bar">
+                                <div class="metric-bar-fill" id="heap-used-bar"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">External Memory</div>
+                            <div class="metric-value" id="external-memory">-</div>
+                            <div class="metric-bar">
+                                <div class="metric-bar-fill" id="external-memory-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Info Card -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <h2>About This Project</h2>
+                </div>
+                <div class="card-content">
+                    <p>This is a collection of <strong>production-ready, security-hardened Docker base images</strong> for modern application development.</p>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">🔒</span>
+                            <span>Security First: Non-root users, minimal attack surface</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📦</span>
+                            <span>Multi-Stage Builds: Optimized image sizes</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🏥</span>
+                            <span>Health Checks: Built-in health and readiness probes</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span>Observability: Prometheus metrics and logging</span>
+                        </div>
+                    </div>
+                    <div class="base-images">
+                        <h3>Available Base Images:</h3>
+                        <div class="image-tags">
+                            <span class="image-tag">debian-base</span>
+                            <span class="image-tag">node-base</span>
+                            <span class="image-tag">python-base</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Endpoints Card -->
+            <div class="card endpoints-card">
+                <div class="card-header">
+                    <h2>API Endpoints</h2>
+                </div>
+                <div class="card-content">
+                    <div class="endpoint-list">
+                        <div class="endpoint-item">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/</span>
+                            <span class="endpoint-desc">Main endpoint with welcome message</span>
+                        </div>
+                        <div class="endpoint-item">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/health</span>
+                            <span class="endpoint-desc">Health check endpoint</span>
+                        </div>
+                        <div class="endpoint-item">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/ready</span>
+                            <span class="endpoint-desc">Readiness check endpoint</span>
+                        </div>
+                        <div class="endpoint-item">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/metrics</span>
+                            <span class="endpoint-desc">Prometheus metrics endpoint</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Auto-refreshing every <span id="refresh-interval">5</span> seconds</p>
+            <p class="footer-note">Built with ❤️ for the Docker community</p>
+        </footer>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
+

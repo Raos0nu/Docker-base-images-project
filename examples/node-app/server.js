@@ -1,4 +1,6 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 // Configuration
 const CONFIG = {
@@ -6,6 +8,7 @@ const CONFIG = {
   host: process.env.HOST || '0.0.0.0',
   nodeEnv: process.env.NODE_ENV || 'development',
   shutdownTimeout: parseInt(process.env.SHUTDOWN_TIMEOUT || '10000', 10),
+  publicDir: path.join(__dirname, 'public'),
 };
 
 // Logger utility
@@ -18,6 +21,40 @@ const logger = {
 // Application state
 let isShuttingDown = false;
 const connections = new Set();
+
+// MIME types
+const mimeTypes = {
+  '.html': 'text/html',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+};
+
+// Serve static files
+const serveStaticFile = (filePath, res) => {
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = mimeTypes[ext] || 'application/octet-stream';
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Not Found', path: filePath }));
+      } else {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Internal Server Error' }));
+      }
+    } else {
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content, 'utf-8');
+    }
+  });
+};
 
 // Request handler
 const requestHandler = (req, res) => {
@@ -37,6 +74,7 @@ const requestHandler = (req, res) => {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
+  // API endpoints (check these first)
   // Health check endpoint
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -73,8 +111,8 @@ process_memory_bytes{type="external"} ${process.memoryUsage().external}
 `);
   }
 
-  // Root endpoint
-  if (req.url === '/') {
+  // API root endpoint (for JSON responses)
+  if (req.url === '/api' || req.url === '/api/') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ 
       message: 'Hello from Docker base image!',
@@ -82,6 +120,17 @@ process_memory_bytes{type="external"} ${process.memoryUsage().external}
       environment: CONFIG.nodeEnv,
       timestamp: new Date().toISOString()
     }));
+  }
+
+  // Serve static files
+  // Parse URL - root serves index.html
+  let filePath = req.url === '/' ? '/index.html' : req.url;
+  filePath = path.join(CONFIG.publicDir, filePath);
+  const ext = path.extname(filePath).toLowerCase();
+
+  // Serve static files (if file has valid extension)
+  if (ext && mimeTypes[ext]) {
+    return serveStaticFile(filePath, res);
   }
 
   // 404 Not Found
