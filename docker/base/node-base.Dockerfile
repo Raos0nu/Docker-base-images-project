@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:20-bookworm-slim AS base
+FROM node:25-bookworm-slim AS base
 
 # Build arguments for versioning and metadata
 ARG BUILD_DATE
