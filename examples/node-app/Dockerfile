@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build stage
-FROM node:20-bookworm-slim AS builder
+FROM node:25-bookworm-slim AS builder
 
 WORKDIR /build
 
@@ -15,7 +15,7 @@ RUN npm ci --include=dev
 COPY . .
 
 # Production stage
-FROM node:20-bookworm-slim AS production
+FROM node:25-bookworm-slim AS production
 
 # Build arguments
 ARG BUILD_DATE
